@@ -13,7 +13,8 @@ const loanSchema = new mongoose.Schema({
   bkashNumber: { type: String },
   nagadNumber: { type: String },
   rocketNumber: { type: String },
-  story: { type: String }
+  story: { type: String },
+  condition: { type: String },
 });
 
 const Loan = mongoose.model('Loan', loanSchema);
