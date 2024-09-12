@@ -25,8 +25,9 @@ mongoose.connect(MONGODB_URI, {
 });
 
 // Routes
+console.log("eseshi");
 app.use('/auth', authRoutes);
-app.use('/loan', loanRoutes); 
+app.use('/api/loans', loanRoutes); 
 
 // Start the server
 app.listen(PORT, () => {

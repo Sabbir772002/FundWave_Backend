@@ -1,48 +1,105 @@
 const express = require('express');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
+const Loan = require('../models/loan');
 
 const router = express.Router();
-const JWT_SECRET = process.env.JWT_SECRET;  // Ensure you have JWT_SECRET set in your environment variables
 
-// Middleware to validate loan input (can be improved with libraries like express-validator)
+// Middleware to validate loan input
 const validateLoanInput = (req, res, next) => {
-  const { borrowerName, loanAmount, interestRate, duration } = req.body;
-  if (!borrowerName || !loanAmount || !interestRate || !duration) {
+  const { username, targetAmount, interest, deadlineDate } = req.body;
+  if (!username || !targetAmount || !interest || !deadlineDate) {
     return res.status(400).json({ error: 'Please provide all required loan details' });
   }
   next();
 };
 
+
 // Create Loan Route
-router.post('/create', async (req, res) => {
+router.post('/create', validateLoanInput, async (req, res) => {
   try {
-    console.log("Loan request received");  
-    console.log(req.body);
-    const { borrowerName, loanAmount, interestRate, duration, username, password } = req.body;
-
-    // Hash password for security (if applicable)
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
-    // Generate a JWT token (can include more details like user roles)
-    const token = jwt.sign({ username: username }, JWT_SECRET, { expiresIn: '1h' });
-
-    // Simulate saving loan to a database (replace with actual DB logic)
-    const loanData = {
-      borrowerName,
-      loanAmount,
-      interestRate,
-      duration,
-      username,
-      password: hashedPassword,  // Store hashed password if needed
-    };
-
-    // Here you'd typically save loanData to your database
-
-    res.status(201).json({ message: 'Loan created successfully', loanData, token });
+    const {
+       username, title, category, targetAmount, deadlineDate, donationType,
+      minimumCheck, interest, bkashNumber, nagadNumber,
+      rocketNumber, story
+    } = req.body;
+  //   console.log(req.body);
+  // console.log(deadlineDate);
+    const loan = new Loan({
+       username, title, category, targetAmount,
+      deadlineDate, donationType, minimumCheck,
+      interest, bkashNumber, nagadNumber, rocketNumber, story
+    });
+    
+    await loan.save();
+    // console.log("baniyesi");
+    // console.log(loan);
+    res.status(201).json({ message: 'Loan created successfully', loan });
   } catch (err) {
     res.status(500).json({ error: 'An error occurred while creating the loan.' });
+  }
+});
+
+// Get List of Loans Route
+router.get('/', async (req, res) => {
+  try {
+    const loans = await Loan.find();
+    res.status(200).json(loans);
+  } catch (err) {
+    res.status(500).json({ error: 'An error occurred while retrieving the loans.' });
+  }
+});
+
+// Get Single Loan Route
+router.get('/:id', async (req, res) => {
+  try {
+    const loan = await Loan.findById(req.params.id);
+    if (!loan) {
+      return res.status(404).json({ error: 'Loan not found' });
+    }
+    res.status(200).json(loan);
+  } catch (err) {
+    res.status(500).json({ error: 'An error occurred while retrieving the loan.' });
+  }
+});
+
+// Update Loan Route
+router.put('/:id', async (req, res) => {
+  try {
+    const {
+       username, title, category, targetAmount, deadlineDate, donationType,
+      minimumCheck, interest, bkashNumber, nagadNumber,
+      rocketNumber, story
+    } = req.body;
+
+    const updatedLoan = await Loan.findByIdAndUpdate(
+      req.params.id,
+      {
+        username, title, category, targetAmount, deadlineDate,
+        donationType, minimumCheck, interest,
+        bkashNumber, nagadNumber, rocketNumber, story
+      },
+      { new: true }
+    );
+
+    if (!updatedLoan) {
+      return res.status(404).json({ error: 'Loan not found' });
+    }
+
+    res.status(200).json({ message: 'Loan updated successfully', updatedLoan });
+  } catch (err) {
+    res.status(500).json({ error: 'An error occurred while updating the loan.' });
+  }
+});
+
+// Delete Loan Route
+router.delete('/:id', async (req, res) => {
+  try {
+    const deletedLoan = await Loan.findByIdAndDelete(req.params.id);
+    if (!deletedLoan) {
+      return res.status(404).json({ error: 'Loan not found' });
+    }
+    res.status(200).json({ message: 'Loan deleted successfully', deletedLoan });
+  } catch (err) {
+    res.status(500).json({ error: 'An error occurred while deleting the loan.' });
   }
 });
 
