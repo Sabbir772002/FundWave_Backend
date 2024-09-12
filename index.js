@@ -2,23 +2,34 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const authRoutes = require('./routes/auth');
+const loanRoutes = require('./routes/loan'); // Renamed variable to 'loanRoutes' for clarity
 const cors = require('cors');
-const app = express();
 
+const app = express();
+const PORT = process.env.PORT || 3000;
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/fundwave'; // Use environment variable for MongoDB URI
+
+// Middleware
 app.use(express.json());
 app.use(cors());
 
 // Connect to MongoDB
-mongoose.connect('mongodb://localhost:27017/fundwave', {
+mongoose.connect(MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
+}).then(() => {
+  console.log('Connected to MongoDB');
+}).catch((error) => {
+  console.error('Error connecting to MongoDB:', error);
+  process.exit(1); // Exit process with failure if unable to connect to DB
 });
 
-// Use authentication routes
+// Routes
+console.log("eseshi");
 app.use('/auth', authRoutes);
+app.use('/api/loans', loanRoutes); 
 
 // Start the server
-const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}/`);
 });
