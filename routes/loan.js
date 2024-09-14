@@ -1,9 +1,9 @@
 const express = require('express');
 const Loan = require('../models/loan');
 const router = express.Router();
+
 const jwt = require('jsonwebtoken');
 JWT_SECRET = process.env.JWT_SECRET;
-
 const validateAuthToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
@@ -128,3 +128,4 @@ router.delete('/:id', async (req, res) => {
 });
 
 module.exports = router;
+

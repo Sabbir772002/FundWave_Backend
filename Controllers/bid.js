@@ -52,6 +52,34 @@ exports.getAllBids = async (req, res) => {
     }
 };
 
+// Get bids by loan ID
+exports.getBidsByLoanId = async (req, res) => {
+    try {
+        const { id } = req.params; // Extract loanId from request parameters
+
+        // Find all bids with the given loanId
+        const bids = await BID.find({ loanid: id });
+        
+        if (!bids || bids.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: 'No bids found for this loan',
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            data: bids,
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Error fetching bids',
+            error: error.message,
+        });
+    }
+};
+
 // Get a specific bid by ID
 exports.getBidById = async (req, res) => {
     try {

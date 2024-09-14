@@ -5,7 +5,8 @@ const bidController = require('../Controllers/bid.js');
 // Routes for bids
 router.post('/', bidController.createBid);
 router.get('/', bidController.getAllBids);
-router.get('/:id', bidController.getBidById);
+router.get('bid/:id', bidController.getBidById);
+router.get('/:id', bidController.getBidsByLoanId);
 router.put('/:id', bidController.updateBid);
 router.delete('/:id', bidController.deleteBid);
 
