@@ -1,9 +1,28 @@
 const express = require('express');
 const Loan = require('../models/loan');
-
 const router = express.Router();
+const jwt = require('jsonwebtoken');
+JWT_SECRET = process.env.JWT_SECRET;
 
-// Middleware to validate loan input
+const validateAuthToken = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (!token) {
+    return res.status(401).json({ message: 'Access denied. No token provided.' });
+  }
+
+  jwt.verify(token, JWT_SECRET, (err, user) => {
+    if (err) {
+      return res.status(403).json({ message: 'Invalid token. Please log in again.' });
+    }
+
+    req.user = user; // Store user information for further use
+    next();
+  });
+};
+
+// Existing validation middleware for loan input
 const validateLoanInput = (req, res, next) => {
   const { username, targetAmount, interest, deadlineDate } = req.body;
   if (!username || !targetAmount || !interest || !deadlineDate) {
@@ -14,7 +33,7 @@ const validateLoanInput = (req, res, next) => {
 
 
 // Create Loan Route
-router.post('/create', validateLoanInput, async (req, res) => {
+router.post('/create', validateAuthToken, validateLoanInput,async (req, res) => {
   try {
     const {
        username, title, category, targetAmount, deadlineDate, donationType,
