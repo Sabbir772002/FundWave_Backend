@@ -6,6 +6,7 @@ const loanRoutes = require('./routes/loan'); // Renamed variable to 'loanRoutes'
 const campaignRoutes = require('./routes/campaign');
 const cors = require('cors');
 const fundpaymentRoutes = require('./routes/fundpaymentRoutes');
+const bidRoutes = require('./routes/Bid');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -31,6 +32,7 @@ app.use('/auth', authRoutes);
 app.use('/api/loans', loanRoutes); 
 app.use('/api/campaign', campaignRoutes);
 app.use('/api/fundpayments', fundpaymentRoutes);
+app.use('/api/bids', bidRoutes);
 
 // Start the server
 app.listen(PORT, () => {
