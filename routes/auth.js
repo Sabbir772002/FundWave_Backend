@@ -95,5 +95,18 @@ router.get('/user/:username', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+router.get('/:username', async (req,res) => {
+  try {
+      const { username } = req.params;
+      console.log(username);
+      // Find a user by username
+      const existingUser = await User.findOne({  username });
+      res.json({ exists: existingUser ? true : false });
+  } catch (error) {
+      console.error('Error finding user:', error);
+      res.json({ error: 'Internal server error' });
+  }
+});
+
 
 module.exports = router;
