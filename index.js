@@ -34,6 +34,8 @@ app.use('/api/campaign', campaignRoutes);
 app.use('/api/fundpayments', fundpaymentRoutes);
 app.use('/api/bids', bidRoutes);
 
+
 // Start the server
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}/`);});
+  
