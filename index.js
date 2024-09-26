@@ -7,6 +7,7 @@ const campaignRoutes = require('./routes/campaign');
 const cors = require('cors');
 const fundpaymentRoutes = require('./routes/fundpaymentRoutes');
 const bidRoutes = require('./routes/Bid');
+const payment = require('./routes/payment');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -33,6 +34,7 @@ app.use('/api/loans', loanRoutes);
 app.use('/api/campaign', campaignRoutes);
 app.use('/api/fundpayments', fundpaymentRoutes);
 app.use('/api/bids', bidRoutes);
+app.use('/api/payment', payment);
 
 // Start the server
 app.listen(PORT, () => {
