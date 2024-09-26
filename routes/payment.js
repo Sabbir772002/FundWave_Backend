@@ -6,8 +6,8 @@ const {
 
 const router = express.Router();
 router.post('/givepay', givepay);
-router.get('/success', done);
-router.get('/fail', fail);
-router.get('/cancel', cancel);
+router.post('/success', done);
+router.post('/fail', fail);
+router.post('/cancel', cancel);
 router.post('/ipn', ipn);
 module.exports = router;

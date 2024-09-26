@@ -3,7 +3,8 @@ const SSLCommerzPayment = require('sslcommerz-lts');
 require('dotenv').config();
 
 const store_id = process.env.STORE_ID;
-const store_passwd = process.env.STORE_PASSWORD;// true for live mode, false for sandbox
+const store_passwd = process.env.STORE_PASSWORD;
+const is_live = false; // true for live mode, false for sandbox
 
 const givepay = async (req, res) => {
   // Assuming planDetails should be an object
@@ -12,6 +13,7 @@ const givepay = async (req, res) => {
     user_email: "customer@example.com", // Assuming a valid email here
     price: 100 // Price in integer form
   };
+
   // Convert price into an integer
   const price = parseInt(planDetails.price);
   
@@ -68,29 +70,35 @@ const givepay = async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 };
-const done= async (req, res) => {
-    // Redirect to payment success page in client
-    res.redirect("http://localhost:5173/payment/success");
-  };
-  
-  // POST request for handling failed payment
-  const fail= async (req, res) => {
-    // Redirect to payment failed page in client
-    res.redirect("http://localhost:5173/payment/fail");
-  };
-  
-  // POST request for handling canceled payment
-  const cancel= async (req, res) => {
-    // Redirect to payment cancel page in client
-    res.redirect("http://localhost:5173/payment/cancel");
-  };
-  
-  // POST request for handling IPN (Instant Payment Notification)
-  const ipn= async (req, res) => {
-    // Process IPN notification if needed
-    res.send({ message: "IPN received" });
-  };
+
+// POST request for handling successful payment
+const done = async (req, res) => {
+  // Redirect to payment success page in client
+  res.redirect("http://localhost:5173/payment/success");
+};
+
+// POST request for handling failed payment
+const fail = async (req, res) => {
+  // Redirect to payment failed page in client
+  res.redirect("http://localhost:5173/payment/fail");
+};
+
+// POST request for handling canceled payment
+const cancel = async (req, res) => {
+  // Redirect to payment cancel page in client
+  res.redirect("http://localhost:5173/payment/cancel");
+};
+
+// POST request for handling IPN (Instant Payment Notification)
+const ipn = async (req, res) => {
+  // Process IPN notification if needed
+  res.send({ message: "IPN received" });
+};
 
 module.exports = {
-  givepay
+  givepay,
+  done,
+  fail,
+  cancel,
+  ipn
 };
