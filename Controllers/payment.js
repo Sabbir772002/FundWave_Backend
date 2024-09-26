@@ -1,78 +1,75 @@
 const axios = require('axios');
+const SSLCommerzPayment = require('sslcommerz-lts');
+require('dotenv').config();
 
-// SSLCommerz credentials
-const STORE_ID = 'perso66deb7ebf3443'; 
-const STORE_PASSWORD = 'perso66deb7ebf3443@ssl';
+const store_id = process.env.STORE_ID;
+const store_passwd = process.env.STORE_PASSWORD;
+const is_live = false; // true for live mode, false for sandbox
 
 const givepay = async (req, res) => {
-    // Sample data, ideally these should come from req.body
-    let amount = 103;
-    let transactionID = `SSLCZ_TEST_${Date.now()}`; // Unique transaction ID
-    let name = "Test Customer";
-    let email = "test@test.com";
-    let phone = "01711111111";
+  // Assuming planDetails should be an object
+  const planDetails = {
+    plan: "Loan",
+    user_email: "customer@example.com", // Assuming a valid email here
+    price: 100 // Price in integer form
+  };
+  // Convert price into an integer
+  const price = parseInt(planDetails.price);
+  
+  // Create a transaction ID using Date.now for simplicity
+  const tran_id = Date.now().toString();
+  
+  // Payment data to send to SSLCommerz
+  const data = {
+    total_amount: price,
+    currency: "BDT",
+    tran_id: tran_id,
+    success_url: `${process.env.SERVER_API}/payment/success`,
+    fail_url: `${process.env.SERVER_API}/payment/fail`,
+    cancel_url: `${process.env.SERVER_API}/payment/cancel`,
+    ipn_url: `${process.env.SERVER_API}/payment/ipn`,
+    shipping_method: "Courier",
+    product_name: planDetails.plan,
+    product_category: "Electronic",
+    product_profile: "general",
+    cus_name: "Customer Name",
+    cus_email: planDetails.user_email,
+    cus_add1: "Dhaka",
+    cus_add2: "Dhaka",
+    cus_city: "Dhaka",
+    cus_state: "Dhaka",
+    cus_postcode: "1000",
+    cus_country: "Bangladesh",
+    cus_phone: "01711111111",
+    cus_fax: "01711111111",
+    ship_name: "Customer Name",
+    ship_add1: "Dhaka",
+    ship_add2: "Dhaka",
+    ship_city: "Dhaka",
+    ship_state: "Dhaka",
+    ship_postcode: 1000,
+    ship_country: "Bangladesh"
+  };
 
-    // Customer and shipment information
-    const postData = {
-        store_id: STORE_ID,
-        store_passwd: STORE_PASSWORD,
-        total_amount: amount,
-        currency: 'BDT',
-        tran_id: transactionID,
-        success_url: "http://localhost/new_sslcz_gw/success.php",
-        fail_url: "http://localhost/new_sslcz_gw/fail.php",
-        cancel_url: "http://localhost/new_sslcz_gw/cancel.php",
-        emi_option: "1",
-        emi_max_inst_option: "9",
-        emi_selected_inst: "9",
-        cus_name: name,
-        cus_email: email,
-        cus_add1: "Dhaka",
-        cus_add2: "Dhaka",
-        cus_city: "Dhaka",
-        cus_state: "Dhaka",
-        cus_postcode: "1000",
-        cus_country: "Bangladesh",
-        cus_phone: phone,
-        cus_fax: phone,
-        ship_name: "Store Test",
-        ship_add1: "Dhaka",
-        ship_add2: "Dhaka",
-        ship_city: "Dhaka",
-        ship_state: "Dhaka",
-        ship_postcode: "1000",
-        ship_country: "Bangladesh",
-        value_a: "ref001",
-        value_b: "ref002",
-        value_c: "ref003",
-        value_d: "ref004",
-        cart: JSON.stringify([
-            { product: "DHK TO BRS AC A1", amount: "200.00" },
-            { product: "DHK TO BRS AC A2", amount: "200.00" },
-            { product: "DHK TO BRS AC A3", amount: "200.00" },
-            { product: "DHK TO BRS AC A4", amount: "200.00" }
-        ]),
-        product_amount: "100",
-        vat: "5",
-        discount_amount: "5",
-        convenience_fee: "3",
-    };
+  try {
+    console.log("Initiating payment...");
 
-    try {
-        // Send request to SSLCOMMERZ API
-        const response = await axios.post('https://sandbox.sslcommerz.com/gwprocess/v4/api.php', postData);
-        
-        if (response.data.status === 'SUCCESS') {
-            res.json({ url: response.data.GatewayPageURL });
-        } else {
-            res.status(500).json({ error: 'Failed to initiate payment', reason: response.data.failedreason });
-        }
-    } catch (error) {
-        console.error('Error initiating payment:', error.message);
-        res.status(500).json({ error: 'Failed to initiate payment' });
-    }
+    const sslcz = new SSLCommerzPayment(store_id, store_passwd, is_live);
+    sslcz.init(data).then((apiResponse) => {
+      // Get the payment gateway URL
+      console.log(apiResponse);
+      let GatewayPageURL = apiResponse.GatewayPageURL;
+      res.send({ url: GatewayPageURL });
+    }).catch((error) => {
+      console.error("Error initializing payment: ", error);
+      res.status(500).send("Error during payment initialization");
+    });
+  } catch (error) {
+    console.error("Error in givepay function: ", error);
+    res.status(500).send("Internal Server Error");
+  }
 };
 
 module.exports = {
-    givepay
+  givepay
 };
