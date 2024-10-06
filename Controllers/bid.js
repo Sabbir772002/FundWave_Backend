@@ -1,4 +1,5 @@
-const BID = require('../models/Bid'); // Adjust the path as necessary
+const BID = require('../models/Bid'); 
+const Loan=require('../models/loan');
 
 // Create a new bid
 exports.createBid = async (req, res) => {
@@ -35,8 +36,54 @@ exports.createBid = async (req, res) => {
     }
 };
 
-// Get all bids
-exports.getAllBids = async (req, res) => {
+exports.getBidFinal = async (req,res)=>{
+    try{
+       const {id}=req.params;
+        const bid=await BID.find({username:id,final:true});
+        // const bid=await BID.find();
+        if (!bid) {
+            return res.status(404).json({
+                success: false,
+                message: 'Bid not found',
+            });
+        }
+        res.status(200).json({
+            success: true,
+            data: bid,
+        });
+    }catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Error fetching bid',
+            error: error.message,
+        });
+    }
+}
+
+exports.getallbidofuser=async (req,res)=>{
+    try{
+        const {id}=req.params;
+        const bid=await BID.find({username:id});
+        if (!bid) {
+            return res.status(404).json({
+                success: false,
+                message: 'Bid not found',
+            });
+        }
+        res.status(200).json({
+            success: true,
+            data: bid,
+        });
+    }catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Error fetching bid',
+            error: error.message,
+        });
+    }
+}
+
+exports.getAllbids = async (req, res) => {
     try {
         const bids = await BID.find();
         res.status(200).json({
@@ -61,8 +108,9 @@ exports.getBidsByLoanId = async (req, res) => {
         const bids = await BID.find({ loanid: id });
         
         if (!bids || bids.length === 0) {
-            return res.status(404).json({
-                success: false,
+            return res.status(200).json({
+                noBids: true,
+                success: true,
                 message: 'No bids found for this loan',
             });
         }
@@ -110,13 +158,23 @@ exports.getBidById = async (req, res) => {
 exports.updateBid = async (req, res) => {
     try {
         const { id } = req.params;
-        const updatedData = req.body;
-
-        const updatedBid = await BID.findByIdAndUpdate(id, updatedData, {
+        const {final}=req.body;
+        if(final){
+            const bid=await BID.findById(id);
+            console.log(bid.loanid);
+            const loan=await Loan.findByIdAndUpdate(bid.loanid,{interest:bid.interest,deadlineDate:bid.deadlineDate},{
+                new:true,    
+                runValidators: true,
+            });
+            loan.save();
+            console.log(loan);
+        }
+        // Corrected line: Use curly braces for the update object
+        const updatedBid = await BID.findByIdAndUpdate(id, req.body, {
             new: true,
             runValidators: true,
         });
-
+        
         if (!updatedBid) {
             return res.status(404).json({
                 success: false,
@@ -137,6 +195,7 @@ exports.updateBid = async (req, res) => {
         });
     }
 };
+
 
 // Delete a specific bid by ID
 exports.deleteBid = async (req, res) => {

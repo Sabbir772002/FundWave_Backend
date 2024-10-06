@@ -1,6 +1,7 @@
 const express = require('express');
 const Loan = require('../models/loan');
 const router = express.Router();
+const Review = require('../models/Reviews');
 
 const jwt = require('jsonwebtoken');
 JWT_SECRET = process.env.JWT_SECRET;
@@ -57,10 +58,74 @@ router.post('/create', validateAuthToken, validateLoanInput,async (req, res) => 
   }
 });
 
+router.post('/review',async (req, res) => {
+  try {
+    const {username, id, message, rating} = req.body;
+    console.log(req.body);
+
+    const reviewData = new Review({
+      username, loanid:id, message, rating, createdAt: new Date()
+    });
+    reviewData.save();
+    console.log(reviewData);
+    res.status(201).json({ message: 'Review created successfully'});
+  } catch (err) {
+    res.status(500).json({ error: 'An error occurred while creating the review.' });
+  }
+});
+
+router.get('/review/:id', async (req, res) => {
+  try {
+    console.log(req.params.id);
+    const reviews = await Review.find({loanid:req.params.id});
+    res.status(200).json(reviews);
+  } catch (err) {
+    res.status(500).json({ error: 'An error occurred while retrieving the reviews.' });
+  }
+}
+);
+router.put('/:id', async (req, res) => {
+
+  try {
+    const {targetAmount, deadlineDate,donationType} = req.body;
+    const updatedLoan = await Loan.findByIdAndUpdate( req.params.id, {targetAmount,donationType,deadlineDate}, { new: true });
+    
+    if (!updatedLoan) {
+      return res.status(404).json({ error: 'Loan not found' });
+    }
+
+    res.status(200).json({ message: 'Loan updated successfully', updatedLoan });
+  } catch (err) {
+    res.status(500).json({ error: 'An error occurred while updating the loan.' });
+  }
+}
+);
+
+router.put('/review/:id', async (req, res) => {
+  try {
+    const {message, rating} = req.body;
+    const updatedReview = await Review.findByIdAndUpdate(
+      req.params,
+      {
+        message, rating
+      },
+      { new: true }
+    );
+
+    if (!updatedReview) {
+      return res.status(404).json({ error: 'Review not found' });
+    }
+
+    res.status(200).json({ message: 'Review updated successfully', updatedReview });
+  } catch (err) {
+    res.status(500).json({ error: 'An error occurred while updating the review.' });
+  }
+}
+);
+
 // Get List of Loans Route
 router.get('/', async (req, res) => {
   try {
-    console.log("eseshi bhai all in one");
     const loans = await Loan.find();
     res.status(200).json(loans);
   } catch (err) {
