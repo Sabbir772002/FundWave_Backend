@@ -127,6 +127,13 @@ router.put('/review/:id', async (req, res) => {
 router.get('/', async (req, res) => {
   try {
     const loans = await Loan.find();
+    loans.sort((a, b) => b.createdAt - a.createdAt);
+    loans.forEach((campaign) => {
+        if (campaign.deadlineDate!=null && campaign.deadlineDate<new Date() && condition!="Completed") {
+            campaign.condition = "Deadline Passed";
+            campaign.save();
+        }
+    });
     res.status(200).json(loans);
   } catch (err) {
     res.status(500).json({ error: 'An error occurred while retrieving the loans.' });
