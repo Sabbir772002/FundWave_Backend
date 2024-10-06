@@ -7,6 +7,7 @@ const FundpaymentSchema = new mongoose.Schema({
     give: { type: String, required: true },
     Amount: { type: Number, default: 0 },
     status: { type: String, required: true },
+    tip: { type: Number, default: 0 },
     createdAt: { type: Date, default: Date.now },
 });
 const Fundpayment = mongoose.model('Fundpayment', FundpaymentSchema);

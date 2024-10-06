@@ -26,7 +26,7 @@ const validateAuthToken = (req, res, next) => {
 // Existing validation middleware for loan input
 const validateLoanInput = (req, res, next) => {
   const { username, targetAmount, interest, deadlineDate } = req.body;
-  if (!username || !targetAmount || !interest || !deadlineDate) {
+  if (!username || !targetAmount || !deadlineDate) {
     return res.status(400).json({ error: 'Please provide all required loan details' });
   }
   next();
@@ -41,8 +41,8 @@ router.post('/create', validateAuthToken, validateLoanInput,async (req, res) => 
       minimumCheck, interest, bkashNumber, nagadNumber,
       rocketNumber, story
     } = req.body;
-  //   console.log(req.body);
-  // console.log(deadlineDate);
+    console.log(req.body);
+  console.log(deadlineDate);
     const loan = new Loan({
        username, title, category, targetAmount,
       deadlineDate, donationType, minimumCheck,

@@ -15,6 +15,7 @@ const createFundpayment = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 const getFundpaymentsByCampaignId = async (req, res) => {
   try {
     const { campaignid } = req.params;
@@ -23,6 +24,7 @@ const getFundpaymentsByCampaignId = async (req, res) => {
     .populate('give')
     .populate('status')
     .populate('campaignid');
+    
       res.status(200).json(payments);
   } catch (error) {
     res.status(500).json({ error: error.message });

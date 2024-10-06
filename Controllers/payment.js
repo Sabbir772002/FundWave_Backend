@@ -10,8 +10,8 @@ const is_live = false; // true for live mode, false for sandbox
 
 // POST request for initiating payment
 const givepay = async (req, res) => {
-  const { price, username, plan, id } = req.body;
-  console.log(price, username, plan, id);
+  const { price, username, plan, id,tip } = req.body;
+  console.log(price, username, plan, id,tip);
 
   const tran_id = Date.now().toString();
 
@@ -56,6 +56,7 @@ const givepay = async (req, res) => {
           give: username,
           Amount: price,
           status: "pending",
+          tip:tip,
           createdAt: new Date()
         });
         await payment.save();
@@ -99,7 +100,7 @@ const done = async (req, res) => {
       const paymensts=await Fundpayment.find({campaignid:payment.campaignid,status:'success'});
       let totalAmount=0;
       paymensts.forEach((payment)=>{
-        totalAmount+=payment.Amount;
+        totalAmount+=payment.Amount-payment.tip;
       });
       if(totalAmount>=campaign.amount){
         await Campaign
