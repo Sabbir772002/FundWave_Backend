@@ -9,7 +9,6 @@ const createFundpayment = async (req, res) => {
       give,
       Amount,
     });
-
     const savedPayment = await newFundpayment.save();
     res.status(201).json(savedPayment);
   } catch (error) {
@@ -21,8 +20,12 @@ const getFundpaymentsByCampaignId = async (req, res) => {
   try {
     const { campaignid } = req.params;
     console.log(campaignid);
-    const payments = await Fundpayment.find({ campaignid }).populate('give').populate('campaignid');
-    res.status(200).json(payments);
+    const payments = await Fundpayment.find({ campaignid, status: 'success' })
+    .populate('give')
+    .populate('status')
+    .populate('campaignid');
+    
+      res.status(200).json(payments);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -32,7 +35,7 @@ const getFundpaymentsByCampaignId = async (req, res) => {
 const getFundpaymentsByUserId = async (req, res) => {
   try {
     const { userid } = req.params;
-    const payments = await Fundpayment.find({ give: userid }).populate('give').populate('campaignid');
+    const payments = await Fundpayment.find({ give: userid,status:'success' }).populate('give').populate('status').populate('campaignid');
     res.status(200).json(payments);
   } catch (error) {
     res.status(500).json({ error: error.message });

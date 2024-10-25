@@ -7,6 +7,10 @@ const userSchema = new mongoose.Schema({
   email: { type: String, unique: true },
   id: {type: String,unique:true},
   password: String,
+  bkash: String,
+  nagad: String,
+  rocket: String,
+  img: String,
 });
 
 const User = mongoose.model('User', userSchema);
